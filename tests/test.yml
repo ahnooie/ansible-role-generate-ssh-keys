@@ -2,4 +2,6 @@
 - hosts: localhost
   remote_user: root
   roles:
-    - generate-ssh-keys
+    - role: generate-ssh-keys
+      vars:
+        generate_ssh_keys_target_server: "localhost"
