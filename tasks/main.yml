@@ -1,2 +1,34 @@
 ---
 # tasks file for generate-ssh-keys
+
+- name: Generate SSH keypair on ssh client
+  user:
+    name: "{{ generate_ssh_keys_client_user }}"
+    generate_ssh_key: yes
+    ssh_key_bits: "{{ generate_ssh_keys_key_bits }}"
+    ssh_key_type: "{{ generate_ssh_keys_key_type }}"
+  become: true
+  register: client_user
+
+- name: Fetch public ssh key from ssh client
+  fetch:
+    src: "{{ client_user.home }}/.ssh/id_{{ generate_ssh_keys_key_type }}.pub"
+    dest: "/tmp/temp_id.pub"
+    flat: yes
+  become: true
+
+- name: Add ssh client's authorized_key to ssh server
+  authorized_key:
+    user: root
+    state: "{{ generate_ssh_keys_key_state }}"
+    key: "{{ lookup('file', '/tmp/temp_id.pub') }}"
+  delegate_to: "{{ generate_ssh_keys_target_server }}"
+  become: true
+  become_user: "{{ generate_ssh_keys_server_user }}"
+
+- name: Scan ssh server's host key and add to client's known hosts
+  known_hosts:
+    name: "{{ generate_ssh_keys_target_server }}"
+    key: "{{ lookup('pipe', 'ssh-keyscan {{ generate_ssh_keys_target_server }},`dig +short {{ generate_ssh_keys_target_server }}`') }}"
+  become: true
+  become_user: "{{ generate_ssh_keys_client_user }}"

@@ -1,2 +1,9 @@
 ---
 # defaults file for generate-ssh-keys
+
+generate_ssh_keys_client_user: "root"
+generate_ssh_keys_key_bits: 4096
+generate_ssh_keys_key_type: "ed25519"
+generate_ssh_keys_target_server: "ssh-server.example.com"
+generate_ssh_keys_server_user: "root"
+generate_ssh_keys_key_state: "present"
