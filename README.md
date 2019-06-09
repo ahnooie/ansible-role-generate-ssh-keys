@@ -8,21 +8,21 @@ This would be useful when setting up ssh access for restic or borgbackup where y
 Requirements
 ------------
 
-The SSH service should be enabled on server
+None
 
 Role Variables
 --------------
 
 Required:
 ```
-generate_ssh_keys_target_server: (required)
+generate_ssh_keys_target_server: (required).  Note that this must match the name of an entry in your ansible inventory file.
 ```
 
 Optional (default values)
 ```
-generate_ssh_keys_server_user: "root" (user ssh client will be logging in as on server)
-generate_ssh_keys_client_user: "root" (user to setup keys on ssh client)
-generate_ssh_keys_key_type: "ed25519" (can also choose rsa)
+generate_ssh_keys_server_user: "root" (user ssh client will be logging in as on server.  The public keys will be copied to this user's authorized keys file.)
+generate_ssh_keys_client_user: "root" (user that you will be sshing from.  The public/private keypair will be generated as this user)
+generate_ssh_keys_key_type: "ed25519" (can also choose "rsa")
 generate_ssh_keys_key_bits: 4096 (ignored for ed25519, but will be used for rsa key type)
 generate_ssh_keys_key_state: "present"
 ```
@@ -47,6 +47,9 @@ generate-ssh-keys.yml
 ```
 inventory
 ```
+[remote-server]
+backups.example.com
+
 [clients]
 host1.example.com
 host2.example.com
