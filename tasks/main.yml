@@ -13,22 +13,31 @@
 - name: Fetch public ssh key from ssh client
   fetch:
     src: "{{ client_user.home }}/.ssh/id_{{ generate_ssh_keys_key_type }}.pub"
-    dest: "/tmp/temp_id.pub"
+    dest: "/tmp/temp_id{{ inventory_hostname }}.pub"
     flat: yes
+  become: true
+
+- name: Create user account on server 
+  user:
+    name: "{{ generate_ssh_keys_server_user }}"
+  delegate_to: "{{ generate_ssh_keys_target_server }}"
   become: true
 
 - name: Add ssh client's authorized_key to ssh server
   authorized_key:
-    user: root
+    user: "{{ generate_ssh_keys_server_user }}"
     state: "{{ generate_ssh_keys_key_state }}"
-    key: "{{ lookup('file', '/tmp/temp_id.pub') }}"
+    key: "{{ lookup('file', '/tmp/temp_id{{ inventory_hostname }}.pub') }}"
   delegate_to: "{{ generate_ssh_keys_target_server }}"
   become: true
-  become_user: "{{ generate_ssh_keys_server_user }}"
+
+- name: debug
+  debug:
+    msg: "{{ hostvars[generate_ssh_keys_target_server].ansible_host }} {{ hostvars[generate_ssh_keys_target_server].ansible_port }}"
 
 - name: Scan ssh server's host key and add to client's known hosts
   known_hosts:
-    name: "{{ generate_ssh_keys_target_server }}"
-    key: "{{ lookup('pipe', 'ssh-keyscan {{ generate_ssh_keys_target_server }},`dig +short {{ generate_ssh_keys_target_server }}`') }}"
+    name: "[{{ hostvars[generate_ssh_keys_target_server].ansible_host }}]:{{ hostvars[generate_ssh_keys_target_server].ansible_port }}"
+    key: "{{ lookup('pipe', 'ssh-keyscan -p {{ hostvars[generate_ssh_keys_target_server].ansible_port }} {{ hostvars[generate_ssh_keys_target_server].ansible_host }},`dig +short {{ hostvars[generate_ssh_keys_target_server].ansible_host }}`') }}"
   become: true
   become_user: "{{ generate_ssh_keys_client_user }}"
