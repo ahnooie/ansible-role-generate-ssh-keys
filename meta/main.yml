@@ -1,6 +1,6 @@
 galaxy_info:
   author: Benjamin Bryan
-  description: Generate SSH keys on clients and add to authorized keys on server
+  description: Generate SSH keys on clients and copy id to authorized keys on server
   company:
 
   # If the issue tracker for your role is not on github, uncomment the
