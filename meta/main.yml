@@ -1,4 +1,5 @@
 galaxy_info:
+  role_name: generate_ssh_keys
   author: Benjamin Bryan
   description: Generate SSH keys on clients and copy id to authorized keys on server
   company:
